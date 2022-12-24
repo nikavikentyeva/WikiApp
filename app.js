@@ -1,9 +1,11 @@
+import wikiApi from "./services/WikiService.js";
+
 const form = document.querySelector("form");
 const input = document.querySelector("input");
 const errorMsg = document.querySelector(".error-msg");
 const resultsDisplay = document.querySelector(".results-display");
 const loader = document.querySelector(".loader");
-const API_URL = "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=20&srsearch="
+
 form.addEventListener("submit", handleSubmit)
 
 async function handleSubmit(e) {
@@ -16,19 +18,18 @@ async function handleSubmit(e) {
   loader.style.display = "flex";
   resultsDisplay.textContent = "";
   await wikiApiCall(input.value)
-
 }
 
 async function wikiApiCall (searchInput) {
+  let data;
   try {
-    const response = await fetch(API_URL + searchInput)
-    const data = await response.json()
-    createCards(data.query.search)
+    data = await wikiApi.getData(searchInput)
   }
   catch (error) {
     errorMsg.textContent = `${error}`
     loader.style.display = "none";
   }
+  createCards(data.query.search)
 }
 
 function createCards (data) {
@@ -45,7 +46,6 @@ function createCards (data) {
       <h3 class="result-title"><a href="${url}" target="_blank">${el.title}</a></h3>
       <a href="${url}" class="result-link" target="_blank">${url}</a>
       <span class="result-snippet">${el.snippet}</span><br>
-      
     `
     resultsDisplay.appendChild(card)
   });
